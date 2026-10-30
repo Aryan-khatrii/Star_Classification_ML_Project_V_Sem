@@ -16,11 +16,11 @@
   "selection_metric": "Macro F1",
   "test_metrics": {
     "Model": "Random Forest",
-    "Accuracy": 0.87525,
-    "Macro Precision": 0.8500933021840807,
-    "Macro Recall": 0.8303302808398286,
-    "Macro F1": 0.8393249543034091,
-    "Weighted F1": 0.8735125116065457,
-    "Training Time (seconds)": 5.390665292739868
+    "Accuracy": 0.87285,
+    "Macro Precision": 0.8414632171266258,
+    "Macro Recall": 0.835660713525039,
+    "Macro F1": 0.8383777445436377,
+    "Weighted F1": 0.8722498577550734,
+    "Training Time (seconds)": 2.1269521713256836
   }
 }

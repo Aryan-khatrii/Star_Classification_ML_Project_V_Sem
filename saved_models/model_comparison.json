@@ -1,12 +1,12 @@
 [
   {
     "Model":"Random Forest",
-    "Accuracy":0.87525,
-    "Macro Precision":0.8500933022,
-    "Macro Recall":0.8303302808,
-    "Macro F1":0.8393249543,
-    "Weighted F1":0.8735125116,
-    "Training Time (seconds)":5.3906652927
+    "Accuracy":0.87285,
+    "Macro Precision":0.8414632171,
+    "Macro Recall":0.8356607135,
+    "Macro F1":0.8383777445,
+    "Weighted F1":0.8722498578,
+    "Training Time (seconds)":2.1269521713
   },
   {
     "Model":"Gradient Boosting",
@@ -15,7 +15,7 @@
     "Macro Recall":0.819976736,
     "Macro F1":0.8288914762,
     "Weighted F1":0.8646356185,
-    "Training Time (seconds)":2.7193787098
+    "Training Time (seconds)":4.7575969696
   },
   {
     "Model":"Decision Tree",
@@ -24,7 +24,7 @@
     "Macro Recall":0.7702185454,
     "Macro F1":0.7704099823,
     "Weighted F1":0.8148975575,
-    "Training Time (seconds)":0.7712557316
+    "Training Time (seconds)":1.8102867603
   },
   {
     "Model":"SVM",
@@ -33,6 +33,6 @@
     "Macro Recall":0.7556803676,
     "Macro F1":0.7423803972,
     "Weighted F1":0.794854219,
-    "Training Time (seconds)":121.2987091541
+    "Training Time (seconds)":280.3624784946
   }
 ]
