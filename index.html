@@ -5,8 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmic Classifier — Machine Learning Project</title>
     <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+            margin-top: 26px;
+        }
+
+        .chart-card {
+            min-width: 0;
+            padding: 22px;
+            border: 1px solid var(--line);
+            background: var(--surface);
+        }
+
+        .chart-card h3 {
+            margin: 0 0 18px;
+            font-family: var(--serif);
+            font-size: 21px;
+            font-weight: 500;
+        }
+
+        .chart-card canvas {
+            width: 100% !important;
+            max-height: 330px;
+        }
+
+        .chart-note {
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .confusion-matrix-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .confusion-matrix {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 5px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .confusion-matrix th,
+        .confusion-matrix td {
+            padding: 12px 8px;
+            border: 1px solid var(--line);
+            min-width: 65px;
+        }
+
+        .confusion-matrix th {
+            background: var(--surface);
+            font-weight: 600;
+        }
+
+        @media (max-width: 700px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
+
 <body>
+
     <nav class="topbar">
         <a class="brand" href="/">
             <span class="brand-mark">C</span>
@@ -19,6 +88,8 @@
     </nav>
 
     <main class="page">
+
+        <!-- HERO SECTION -->
         <section class="hero">
             <div class="eyebrow">SDSS DATASET / MACHINE LEARNING</div>
             <h1>Reading the<br><em>universe.</em></h1>
@@ -34,6 +105,7 @@
             </div>
         </section>
 
+        <!-- PREDICTION SECTION -->
         <section class="workspace" id="classifier">
             <div class="section-heading">
                 <div>
@@ -50,26 +122,32 @@
 
             <form id="predictionForm">
                 <div class="form-grid">
+
                     <div class="field">
                         <label for="u"><span>u</span> Ultraviolet band</label>
                         <input id="u" type="number" step="any" value="22.3" required>
                     </div>
+
                     <div class="field">
                         <label for="g"><span>g</span> Green band</label>
                         <input id="g" type="number" step="any" value="21.8" required>
                     </div>
+
                     <div class="field">
                         <label for="r"><span>r</span> Red band</label>
                         <input id="r" type="number" step="any" value="21.2" required>
                     </div>
+
                     <div class="field">
                         <label for="i"><span>i</span> Near-infrared band</label>
                         <input id="i" type="number" step="any" value="20.9" required>
                     </div>
+
                     <div class="field">
                         <label for="z"><span>z</span> Infrared band</label>
                         <input id="z" type="number" step="any" value="20.7" required>
                     </div>
+
                 </div>
 
                 <div class="form-footer">
@@ -84,27 +162,34 @@
 
             <section id="result" class="result-panel" hidden aria-live="polite">
                 <div class="eyebrow">CLASSIFICATION RESULT</div>
+
                 <div class="result-main">
                     <div>
                         <div id="resultTitle" class="result-title"></div>
                         <p id="resultDescription" class="muted"></p>
                         <p id="resultLabel" class="result-label"></p>
                     </div>
+
                     <div class="result-stamp">ANALYSIS<br>COMPLETE</div>
                 </div>
+
                 <div id="probabilities" class="probabilities"></div>
                 <p id="confidenceNote" class="fine-print"></p>
             </section>
         </section>
 
+        <!-- BEST MODEL SECTION -->
         <section class="best-model section-block">
             <div class="best-label">
                 <span class="eyebrow">MODEL SELECTION</span>
                 <span class="trophy-mark">★</span>
             </div>
+
             <div>
                 <h2>Best performing model</h2>
-                <p id="bestModelName" class="best-name">Loading model results...</p>
+                <p id="bestModelName" class="best-name">
+                    Loading model results...
+                </p>
                 <p id="bestModelDescription" class="muted">
                     Selected using the highest Macro F1-score.
                 </p>
@@ -112,6 +197,7 @@
             </div>
         </section>
 
+        <!-- MODEL COMPARISON -->
         <section class="section-block" id="comparison">
             <div class="section-heading">
                 <div>
@@ -139,20 +225,99 @@
                             <th>Training (s)</th>
                         </tr>
                     </thead>
+
                     <tbody id="comparisonBody">
-                        <tr><td colspan="7">Loading results...</td></tr>
+                        <tr>
+                            <td colspan="7">Loading results...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
+
             <p id="comparisonMessage" class="fine-print" role="status"></p>
         </section>
 
+        <!-- RANDOM FOREST VISUALIZATIONS -->
+        <section class="section-block rf-analysis" id="rf-analysis">
+
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">03 / RANDOM FOREST ANALYSIS</div>
+                    <h2>Inside the best model</h2>
+                </div>
+                <span class="tag">RANDOM FOREST</span>
+            </div>
+
+            <p class="muted">
+                Visual evaluation of the best-performing Random Forest model
+                using the held-out test dataset.
+            </p>
+
+            <div class="analysis-grid">
+
+                <!-- CONFUSION MATRIX -->
+                <article class="chart-card">
+                    <h3>Confusion Matrix</h3>
+
+                    <div class="confusion-matrix-wrap">
+                        <table id="confusionMatrixTable" class="confusion-matrix">
+                            <tbody>
+                                <tr>
+                                    <td>Loading confusion matrix...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="chart-note">
+                        Rows represent actual classes; columns represent predicted classes.
+                    </p>
+                </article>
+
+                <!-- ROC CURVE -->
+                <article class="chart-card">
+                    <h3>Multiclass ROC Curve</h3>
+                    <canvas id="rocChart"></canvas>
+
+                    <p class="chart-note">
+                        One-vs-rest ROC curves for GALAXY, QSO, and STAR.
+                    </p>
+                </article>
+
+                <!-- FEATURE IMPORTANCE -->
+                <article class="chart-card">
+                    <h3>Feature Importance</h3>
+                    <canvas id="featureImportanceChart"></canvas>
+
+                    <p class="chart-note">
+                        Relative contribution of the five photometric features.
+                    </p>
+                </article>
+
+                <!-- PERFORMANCE METRICS -->
+                <article class="chart-card">
+                    <h3>Performance Metrics</h3>
+                    <canvas id="metricsChart"></canvas>
+
+                    <p class="chart-note">
+                        Scores are measured on the held-out test dataset.
+                    </p>
+                </article>
+
+            </div>
+
+            <p id="rfAnalysisMessage" class="fine-print" role="status"></p>
+        </section>
+
+        <!-- ABOUT SECTION -->
         <section class="section-block about-section">
             <div>
-                <div class="eyebrow">03 / ABOUT THE STUDY</div>
+                <div class="eyebrow">04 / ABOUT THE STUDY</div>
                 <h2>Three classes.<br>One classifier.</h2>
             </div>
+
             <div class="class-list">
+
                 <article>
                     <span class="class-index">01</span>
                     <div>
@@ -160,6 +325,7 @@
                         <p>A luminous astronomical object.</p>
                     </div>
                 </article>
+
                 <article>
                     <span class="class-index">02</span>
                     <div>
@@ -167,6 +333,7 @@
                         <p>A system of stars, gas, dust, and dark matter.</p>
                     </div>
                 </article>
+
                 <article>
                     <span class="class-index">03</span>
                     <div>
@@ -174,29 +341,41 @@
                         <p>An extremely luminous active galactic nucleus.</p>
                     </div>
                 </article>
+
             </div>
         </section>
 
+        <!-- FOOTER -->
         <footer>
             <span>COSMIC CLASSIFIER / MACHINE LEARNING PROJECT</span>
             <span>Educational machine learning project · SDSS</span>
         </footer>
+
     </main>
 
     <script>
+
+        // =====================================
+        // PREDICTION FUNCTION
+        // =====================================
+
         const form = document.getElementById("predictionForm");
         const button = document.getElementById("predictButton");
         const message = document.getElementById("message");
         const result = document.getElementById("result");
 
         form.addEventListener("submit", async (event) => {
+
             event.preventDefault();
+
             message.textContent = "";
             result.hidden = true;
+
             button.disabled = true;
             button.textContent = "Analysing observation…";
 
             const values = {};
+
             for (const feature of ["u", "g", "r", "i", "z"]) {
                 values[feature] = Number(
                     document.getElementById(feature).value
@@ -204,6 +383,7 @@
             }
 
             try {
+
                 const response = await fetch("/predict", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
@@ -211,14 +391,17 @@
                 });
 
                 const data = await response.json();
+
                 if (!response.ok) {
                     throw new Error(data.detail || "Prediction failed.");
                 }
 
                 document.getElementById("resultTitle").textContent =
                     `${data.emoji} ${data.title}`;
+
                 document.getElementById("resultDescription").textContent =
                     data.description;
+
                 document.getElementById("resultLabel").textContent =
                     `PREDICTED LABEL / ${data.prediction}`;
 
@@ -226,12 +409,14 @@
                 box.replaceChildren();
 
                 if (data.probabilities) {
+
                     const heading = document.createElement("h3");
                     heading.textContent = "Class probability estimates";
                     box.appendChild(heading);
 
                     for (const [label, probability] of
                         Object.entries(data.probabilities)) {
+
                         const row = document.createElement("div");
                         row.className = "probability-row";
 
@@ -251,6 +436,7 @@
 
                         const fill = document.createElement("div");
                         fill.className = "probability-fill";
+
                         fill.style.width =
                             `${Math.max(0, Math.min(100, Number(probability)))}%`;
 
@@ -261,34 +447,53 @@
 
                     document.getElementById("confidenceNote").textContent =
                         "Estimated model probabilities, not scientific certainty.";
+
                 } else {
+
                     document.getElementById("confidenceNote").textContent =
                         "This model does not provide probability estimates.";
                 }
 
                 result.hidden = false;
+
                 result.scrollIntoView({
                     behavior: "smooth",
                     block: "nearest"
                 });
+
             } catch (error) {
+
                 message.textContent = `Unable to classify: ${error.message}`;
+
             } finally {
+
                 button.disabled = false;
+
                 button.innerHTML =
                     'Classify observation <span aria-hidden="true">↗</span>';
             }
         });
 
+
+        // =====================================
+        // MODEL COMPARISON FUNCTION
+        // =====================================
+
         async function loadModelComparison() {
+
             const body = document.getElementById("comparisonBody");
             const message = document.getElementById("comparisonMessage");
+
             const bestName = document.getElementById("bestModelName");
+
             const bestDescription =
                 document.getElementById("bestModelDescription");
-            const bestMetrics = document.getElementById("bestModelMetrics");
+
+            const bestMetrics =
+                document.getElementById("bestModelMetrics");
 
             try {
+
                 const response = await fetch("/api/model-comparison");
 
                 if (!response.ok) {
@@ -308,25 +513,37 @@
                 }
 
                 function getValue(row, aliases) {
+
                     const key = Object.keys(row).find(k =>
                         aliases.includes(normalise(k))
                     );
+
                     return key === undefined ? null : row[key];
                 }
 
                 const metricColumns = [
+
                     {title: "Model", aliases: ["model", "modelname", "name"]},
+
                     {title: "Accuracy", aliases: ["accuracy"]},
+
                     {title: "Macro Precision", aliases: ["macroprecision"]},
+
                     {title: "Macro Recall", aliases: ["macrorecall"]},
+
                     {title: "Macro F1", aliases: ["macrof1", "macrof1score"]},
+
                     {title: "Weighted F1", aliases: ["weightedf1", "weightedf1score"]},
+
                     {
                         title: "Training (s)",
                         aliases: [
-                            "trainingtime", "trainingtimes",
-                            "trainingtimeseconds", "trainingtimeinseconds",
-                            "time", "seconds"
+                            "trainingtime",
+                            "trainingtimes",
+                            "trainingtimeseconds",
+                            "trainingtimeinseconds",
+                            "time",
+                            "seconds"
                         ]
                     }
                 ];
@@ -352,16 +569,20 @@
 
                 const bestModelLabel =
                     getValue(best, ["model", "modelname", "name"]) ?? "Best model";
+
                 const bestF1 = Number(getValue(best, f1Aliases));
 
                 bestName.textContent = String(bestModelLabel);
+
                 bestDescription.textContent =
                     "Highest Macro F1-score among the evaluated models.";
+
                 bestMetrics.textContent = `Macro F1 / ${bestF1.toFixed(4)}`;
 
                 body.replaceChildren();
 
                 models.forEach(row => {
+
                     const tr = document.createElement("tr");
 
                     const rowModel = String(
@@ -373,16 +594,23 @@
                     }
 
                     metricColumns.forEach(column => {
+
                         const td = document.createElement("td");
+
                         const value = getValue(row, column.aliases);
 
                         if (value === null || value === undefined) {
+
                             td.textContent = "—";
+
                         } else if (typeof value === "number") {
+
                             td.textContent = column.title === "Training (s)"
                                 ? value.toFixed(2)
                                 : value.toFixed(4);
+
                         } else {
+
                             td.textContent = String(value);
                         }
 
@@ -394,7 +622,9 @@
 
                 message.textContent =
                     `${models.length} models · Best model selected by Macro F1-score.`;
+
             } catch (error) {
+
                 body.replaceChildren();
 
                 const tr = document.createElement("tr");
@@ -407,8 +637,10 @@
                 body.appendChild(tr);
 
                 bestName.textContent = "Results unavailable";
+
                 bestDescription.textContent =
                     "Export the latest model comparison table from the notebook.";
+
                 bestMetrics.textContent = "";
 
                 message.textContent =
@@ -416,7 +648,347 @@
             }
         }
 
+
+        // =====================================
+        // RANDOM FOREST ANALYSIS
+        // =====================================
+
+        async function loadRandomForestAnalysis() {
+
+            const message = document.getElementById("rfAnalysisMessage");
+
+            try {
+
+                const response = await fetch("/api/random-forest-analysis");
+
+                if (!response.ok) {
+
+                    let detail =
+                        "Random Forest analysis data could not be loaded.";
+
+                    try {
+                        const errorData = await response.json();
+                        detail = errorData.detail || detail;
+                    } catch (_) {}
+
+                    throw new Error(detail);
+                }
+
+                const data = await response.json();
+
+
+                // 1. CONFUSION MATRIX
+
+                const matrixTable =
+                    document.getElementById("confusionMatrixTable");
+
+                const classes = data.classes || [];
+                const matrix = data.confusion_matrix || [];
+
+                if (!classes.length || !matrix.length) {
+                    throw new Error(
+                        "Confusion matrix data is missing or empty."
+                    );
+                }
+
+                matrixTable.replaceChildren();
+
+                const header = document.createElement("thead");
+                const headerRow = document.createElement("tr");
+
+                const corner = document.createElement("th");
+                corner.textContent = "Actual / Predicted";
+
+                headerRow.appendChild(corner);
+
+                classes.forEach(className => {
+
+                    const th = document.createElement("th");
+                    th.textContent = className;
+
+                    headerRow.appendChild(th);
+                });
+
+                header.appendChild(headerRow);
+                matrixTable.appendChild(header);
+
+                const body = document.createElement("tbody");
+
+                const maxValue = Math.max(
+                    ...matrix.flat().map(Number),
+                    1
+                );
+
+                matrix.forEach((rowValues, rowIndex) => {
+
+                    const tr = document.createElement("tr");
+
+                    const rowHeading = document.createElement("th");
+                    rowHeading.textContent = classes[rowIndex];
+
+                    tr.appendChild(rowHeading);
+
+                    rowValues.forEach(value => {
+
+                        const td = document.createElement("td");
+
+                        const numericValue = Number(value);
+
+                        td.textContent =
+                            numericValue.toLocaleString();
+
+                        const intensity = Math.round(
+                            12 + (numericValue / maxValue) * 48
+                        );
+
+                        td.style.backgroundColor =
+                            `rgba(174, 104, 73, ${intensity / 100})`;
+
+                        td.style.fontWeight = "600";
+
+                        tr.appendChild(td);
+                    });
+
+                    body.appendChild(tr);
+                });
+
+                matrixTable.appendChild(body);
+
+
+                // 2. MULTICLASS ROC CURVE
+
+                const rocColors = [
+                    "#ae6849",
+                    "#536b83",
+                    "#78866b"
+                ];
+
+                const rocDatasets = (data.roc || []).map(
+                    (item, index) => ({
+
+                        label:
+                            `${item.class} (AUC: ${Number(item.auc).toFixed(3)})`,
+
+                        data: (item.points || []).map(point => ({
+                            x: Number(point[0]),
+                            y: Number(point[1])
+                        })),
+
+                        parsing: false,
+                        showLine: true,
+                        fill: false,
+                        pointRadius: 0,
+                        borderWidth: 2,
+
+                        borderColor:
+                            rocColors[index % rocColors.length]
+                    })
+                );
+
+                rocDatasets.push({
+
+                    label: "Random classifier",
+
+                    data: [
+                        {x: 0, y: 0},
+                        {x: 1, y: 1}
+                    ],
+
+                    parsing: false,
+                    showLine: true,
+                    pointRadius: 0,
+                    borderDash: [5, 5],
+                    borderWidth: 1,
+                    borderColor: "#999999"
+                });
+
+                new Chart(
+                    document.getElementById("rocChart"),
+                    {
+                        type: "scatter",
+
+                        data: {
+                            datasets: rocDatasets
+                        },
+
+                        options: {
+
+                            responsive: true,
+                            maintainAspectRatio: true,
+
+                            scales: {
+
+                                x: {
+                                    type: "linear",
+                                    min: 0,
+                                    max: 1,
+
+                                    title: {
+                                        display: true,
+                                        text: "False Positive Rate"
+                                    }
+                                },
+
+                                y: {
+                                    min: 0,
+                                    max: 1,
+
+                                    title: {
+                                        display: true,
+                                        text: "True Positive Rate"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                );
+
+
+                // 3. FEATURE IMPORTANCE
+
+                const importance = data.feature_importance || [];
+
+                new Chart(
+                    document.getElementById("featureImportanceChart"),
+                    {
+                        type: "bar",
+
+                        data: {
+
+                            labels: importance.map(
+                                item => item.feature
+                            ),
+
+                            datasets: [{
+
+                                label: "Importance",
+
+                                data: importance.map(
+                                    item => Number(item.importance)
+                                ),
+
+                                backgroundColor: "#ae6849",
+                                borderWidth: 0,
+                                borderRadius: 3
+                            }]
+                        },
+
+                        options: {
+
+                            indexAxis: "y",
+                            responsive: true,
+
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+
+                            scales: {
+
+                                x: {
+                                    beginAtZero: true,
+
+                                    title: {
+                                        display: true,
+                                        text: "Importance Score"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                );
+
+
+                // 4. PERFORMANCE METRICS
+
+                const metricLabels = {
+
+                    accuracy: "Accuracy",
+
+                    macro_precision: "Macro Precision",
+
+                    macro_recall: "Macro Recall",
+
+                    macro_f1: "Macro F1",
+
+                    weighted_f1: "Weighted F1"
+                };
+
+                const metrics = data.metrics || {};
+
+                new Chart(
+                    document.getElementById("metricsChart"),
+                    {
+                        type: "bar",
+
+                        data: {
+
+                            labels: Object.values(metricLabels),
+
+                            datasets: [{
+
+                                label: "Score",
+
+                                data: Object.keys(metricLabels).map(
+                                    key => Number(metrics[key] ?? 0)
+                                ),
+
+                                backgroundColor: "#536b83",
+                                borderWidth: 0,
+                                borderRadius: 3
+                            }]
+                        },
+
+                        options: {
+
+                            responsive: true,
+
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+
+                            scales: {
+
+                                y: {
+                                    min: 0,
+                                    max: 1,
+
+                                    title: {
+                                        display: true,
+                                        text: "Score"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                );
+
+                message.textContent =
+                    "Random Forest evaluation charts loaded successfully.";
+
+            } catch (error) {
+
+                message.textContent = error.message;
+
+                console.error(
+                    "Random Forest analysis error:",
+                    error
+                );
+            }
+        }
+
+
+        // =====================================
+        // LOAD ALL DATA
+        // =====================================
+
         loadModelComparison();
+        loadRandomForestAnalysis();
+
     </script>
+
 </body>
 </html>
