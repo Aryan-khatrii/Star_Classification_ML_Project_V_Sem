@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Classifier — Machine Learning Project</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <nav class="topbar">
+        <a class="brand" href="/">
+            <span class="brand-mark">C</span>
+            <span>COSMIC CLASSIFIER <small>MACHINE LEARNING PROJECT</small></span>
+        </a>
+        <div class="nav-right">
+            <span class="status-dot"></span>
+            CLASSIFICATION SYSTEM
+        </div>
+    </nav>
+
+    <main class="page">
+        <section class="hero">
+            <div class="eyebrow">SDSS DATASET / MACHINE LEARNING</div>
+            <h1>Reading the<br><em>universe.</em></h1>
+            <p class="hero-copy">
+                A machine learning study of astronomical objects.
+                Enter photometric measurements to classify an observation
+                as a star, galaxy, or quasar.
+            </p>
+            <div class="hero-meta">
+                <span>01 — OBSERVE</span>
+                <span>02 — CLASSIFY</span>
+                <span>03 — COMPARE</span>
+            </div>
+        </section>
+
+        <section class="workspace" id="classifier">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">01 / INPUT DATA</div>
+                    <h2>Observation record</h2>
+                </div>
+                <span class="tag">5 FEATURES</span>
+            </div>
+
+            <p class="muted">
+                Enter the five magnitude measurements from an astronomical
+                catalogue. Redshift is not used by this model.
+            </p>
+
+            <form id="predictionForm">
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="u"><span>u</span> Ultraviolet band</label>
+                        <input id="u" type="number" step="any" value="22.3" required>
+                    </div>
+                    <div class="field">
+                        <label for="g"><span>g</span> Green band</label>
+                        <input id="g" type="number" step="any" value="21.8" required>
+                    </div>
+                    <div class="field">
+                        <label for="r"><span>r</span> Red band</label>
+                        <input id="r" type="number" step="any" value="21.2" required>
+                    </div>
+                    <div class="field">
+                        <label for="i"><span>i</span> Near-infrared band</label>
+                        <input id="i" type="number" step="any" value="20.9" required>
+                    </div>
+                    <div class="field">
+                        <label for="z"><span>z</span> Infrared band</label>
+                        <input id="z" type="number" step="any" value="20.7" required>
+                    </div>
+                </div>
+
+                <div class="form-footer">
+                    <span class="muted">All five measurements are required.</span>
+                    <button type="submit" id="predictButton">
+                        Classify observation <span aria-hidden="true">↗</span>
+                    </button>
+                </div>
+            </form>
+
+            <p id="message" class="message" role="alert"></p>
+
+            <section id="result" class="result-panel" hidden aria-live="polite">
+                <div class="eyebrow">CLASSIFICATION RESULT</div>
+                <div class="result-main">
+                    <div>
+                        <div id="resultTitle" class="result-title"></div>
+                        <p id="resultDescription" class="muted"></p>
+                        <p id="resultLabel" class="result-label"></p>
+                    </div>
+                    <div class="result-stamp">ANALYSIS<br>COMPLETE</div>
+                </div>
+                <div id="probabilities" class="probabilities"></div>
+                <p id="confidenceNote" class="fine-print"></p>
+            </section>
+        </section>
+
+        <section class="best-model section-block">
+            <div class="best-label">
+                <span class="eyebrow">MODEL SELECTION</span>
+                <span class="trophy-mark">★</span>
+            </div>
+            <div>
+                <h2>Best performing model</h2>
+                <p id="bestModelName" class="best-name">Loading model results...</p>
+                <p id="bestModelDescription" class="muted">
+                    Selected using the highest Macro F1-score.
+                </p>
+                <div id="bestModelMetrics" class="best-metric"></div>
+            </div>
+        </section>
+
+        <section class="section-block" id="comparison">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">02 / EVALUATION</div>
+                    <h2>Model comparison</h2>
+                </div>
+                <span class="tag">4 ALGORITHMS</span>
+            </div>
+
+            <p class="muted">
+                Evaluation results from the held-out test set. Higher scores
+                are better for classification metrics; training time is in seconds.
+            </p>
+
+            <div class="table-container">
+                <table id="comparisonTable">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Accuracy</th>
+                            <th>Macro Precision</th>
+                            <th>Macro Recall</th>
+                            <th>Macro F1</th>
+                            <th>Weighted F1</th>
+                            <th>Training (s)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonBody">
+                        <tr><td colspan="7">Loading results...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p id="comparisonMessage" class="fine-print" role="status"></p>
+        </section>
+
+        <section class="section-block about-section">
+            <div>
+                <div class="eyebrow">03 / ABOUT THE STUDY</div>
+                <h2>Three classes.<br>One classifier.</h2>
+            </div>
+            <div class="class-list">
+                <article>
+                    <span class="class-index">01</span>
+                    <div>
+                        <h3>Star</h3>
+                        <p>A luminous astronomical object.</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="class-index">02</span>
+                    <div>
+                        <h3>Galaxy</h3>
+                        <p>A system of stars, gas, dust, and dark matter.</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="class-index">03</span>
+                    <div>
+                        <h3>Quasar · QSO</h3>
+                        <p>An extremely luminous active galactic nucleus.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <footer>
+            <span>COSMIC CLASSIFIER / MACHINE LEARNING PROJECT</span>
+            <span>Educational machine learning project · SDSS</span>
+        </footer>
+    </main>
+
+    <script>
+        const form = document.getElementById("predictionForm");
+        const button = document.getElementById("predictButton");
+        const message = document.getElementById("message");
+        const result = document.getElementById("result");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            message.textContent = "";
+            result.hidden = true;
+            button.disabled = true;
+            button.textContent = "Analysing observation…";
+
+            const values = {};
+            for (const feature of ["u", "g", "r", "i", "z"]) {
+                values[feature] = Number(
+                    document.getElementById(feature).value
+                );
+            }
+
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(values)
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || "Prediction failed.");
+                }
+
+                document.getElementById("resultTitle").textContent =
+                    `${data.emoji} ${data.title}`;
+                document.getElementById("resultDescription").textContent =
+                    data.description;
+                document.getElementById("resultLabel").textContent =
+                    `PREDICTED LABEL / ${data.prediction}`;
+
+                const box = document.getElementById("probabilities");
+                box.replaceChildren();
+
+                if (data.probabilities) {
+                    const heading = document.createElement("h3");
+                    heading.textContent = "Class probability estimates";
+                    box.appendChild(heading);
+
+                    for (const [label, probability] of
+                        Object.entries(data.probabilities)) {
+                        const row = document.createElement("div");
+                        row.className = "probability-row";
+
+                        const line = document.createElement("div");
+                        line.className = "probability-label";
+
+                        const name = document.createElement("span");
+                        name.textContent = label;
+
+                        const value = document.createElement("span");
+                        value.textContent = `${probability}%`;
+
+                        line.append(name, value);
+
+                        const track = document.createElement("div");
+                        track.className = "probability-track";
+
+                        const fill = document.createElement("div");
+                        fill.className = "probability-fill";
+                        fill.style.width =
+                            `${Math.max(0, Math.min(100, Number(probability)))}%`;
+
+                        track.appendChild(fill);
+                        row.append(line, track);
+                        box.appendChild(row);
+                    }
+
+                    document.getElementById("confidenceNote").textContent =
+                        "Estimated model probabilities, not scientific certainty.";
+                } else {
+                    document.getElementById("confidenceNote").textContent =
+                        "This model does not provide probability estimates.";
+                }
+
+                result.hidden = false;
+                result.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+            } catch (error) {
+                message.textContent = `Unable to classify: ${error.message}`;
+            } finally {
+                button.disabled = false;
+                button.innerHTML =
+                    'Classify observation <span aria-hidden="true">↗</span>';
+            }
+        });
+
+        async function loadModelComparison() {
+            const body = document.getElementById("comparisonBody");
+            const message = document.getElementById("comparisonMessage");
+            const bestName = document.getElementById("bestModelName");
+            const bestDescription =
+                document.getElementById("bestModelDescription");
+            const bestMetrics = document.getElementById("bestModelMetrics");
+
+            try {
+                const response = await fetch("/api/model-comparison");
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Comparison data not found. Export it from the notebook."
+                    );
+                }
+
+                const models = await response.json();
+
+                if (!Array.isArray(models) || models.length === 0) {
+                    throw new Error("No comparison results were found.");
+                }
+
+                function normalise(key) {
+                    return key.toLowerCase().replace(/[^a-z0-9]/g, "");
+                }
+
+                function getValue(row, aliases) {
+                    const key = Object.keys(row).find(k =>
+                        aliases.includes(normalise(k))
+                    );
+                    return key === undefined ? null : row[key];
+                }
+
+                const metricColumns = [
+                    {title: "Model", aliases: ["model", "modelname", "name"]},
+                    {title: "Accuracy", aliases: ["accuracy"]},
+                    {title: "Macro Precision", aliases: ["macroprecision"]},
+                    {title: "Macro Recall", aliases: ["macrorecall"]},
+                    {title: "Macro F1", aliases: ["macrof1", "macrof1score"]},
+                    {title: "Weighted F1", aliases: ["weightedf1", "weightedf1score"]},
+                    {
+                        title: "Training (s)",
+                        aliases: [
+                            "trainingtime", "trainingtimes",
+                            "trainingtimeseconds", "trainingtimeinseconds",
+                            "time", "seconds"
+                        ]
+                    }
+                ];
+
+                const f1Aliases = ["macrof1", "macrof1score"];
+
+                const validModels = models.filter(row =>
+                    Number.isFinite(Number(getValue(row, f1Aliases)))
+                );
+
+                if (validModels.length === 0) {
+                    throw new Error(
+                        "Macro F1 values were not found in the comparison data."
+                    );
+                }
+
+                const best = validModels.reduce((currentBest, row) =>
+                    Number(getValue(row, f1Aliases)) >
+                    Number(getValue(currentBest, f1Aliases))
+                        ? row
+                        : currentBest
+                );
+
+                const bestModelLabel =
+                    getValue(best, ["model", "modelname", "name"]) ?? "Best model";
+                const bestF1 = Number(getValue(best, f1Aliases));
+
+                bestName.textContent = String(bestModelLabel);
+                bestDescription.textContent =
+                    "Highest Macro F1-score among the evaluated models.";
+                bestMetrics.textContent = `Macro F1 / ${bestF1.toFixed(4)}`;
+
+                body.replaceChildren();
+
+                models.forEach(row => {
+                    const tr = document.createElement("tr");
+
+                    const rowModel = String(
+                        getValue(row, ["model", "modelname", "name"]) ?? ""
+                    );
+
+                    if (rowModel === String(bestModelLabel)) {
+                        tr.classList.add("best-row");
+                    }
+
+                    metricColumns.forEach(column => {
+                        const td = document.createElement("td");
+                        const value = getValue(row, column.aliases);
+
+                        if (value === null || value === undefined) {
+                            td.textContent = "—";
+                        } else if (typeof value === "number") {
+                            td.textContent = column.title === "Training (s)"
+                                ? value.toFixed(2)
+                                : value.toFixed(4);
+                        } else {
+                            td.textContent = String(value);
+                        }
+
+                        tr.appendChild(td);
+                    });
+
+                    body.appendChild(tr);
+                });
+
+                message.textContent =
+                    `${models.length} models · Best model selected by Macro F1-score.`;
+            } catch (error) {
+                body.replaceChildren();
+
+                const tr = document.createElement("tr");
+                const td = document.createElement("td");
+
+                td.colSpan = 7;
+                td.textContent = error.message;
+
+                tr.appendChild(td);
+                body.appendChild(tr);
+
+                bestName.textContent = "Results unavailable";
+                bestDescription.textContent =
+                    "Export the latest model comparison table from the notebook.";
+                bestMetrics.textContent = "";
+
+                message.textContent =
+                    "The model comparison could not be loaded.";
+            }
+        }
+
+        loadModelComparison();
+    </script>
+</body>
+</html>
